@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
 public interface EquipmentService {
     List<Equipment> getAllEquipment();
     Equipment getEquipmentById(int id);

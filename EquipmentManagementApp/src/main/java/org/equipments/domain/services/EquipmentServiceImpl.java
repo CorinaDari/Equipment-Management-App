@@ -1,97 +1,93 @@
 package org.equipments.domain.services;
 
+import jakarta.transaction.Transactional;
 import org.equipments.classes.Equipment;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class EquipmentServiceImpl implements EquipmentService {
 
-    private final List<Equipment> equipmentList = new ArrayList<>();
+    private final EquipmentRepository equipmentRepository;
+
+    public EquipmentServiceImpl(EquipmentRepository equipmentRepository) {
+        this.equipmentRepository = equipmentRepository;
+    }
 
     @Override
+    @Transactional
     public List<Equipment> getAllEquipment() {
-        return new ArrayList<>(equipmentList);
+        return equipmentRepository.findAll();
+
     }
 
     @Override
     public Equipment getEquipmentById(int id) {
-        return equipmentList.stream()
-                .filter(equipment -> equipment.getId() == id)
-                .findFirst()
-                .orElse(null);
+        return equipmentRepository.findById(id).orElse(null); // Găsește echipamentul după id
+
     }
 
     @Override
     public Equipment addEquipment(Equipment equipment) {
-        equipmentList.add(equipment);
-        return equipment;
+        return equipmentRepository.save(equipment); // Salvează echipamentul în baza de date
     }
 
     @Override
-    public Equipment updateEquipment(int id, Equipment updatedEquipment) {
-        for (int i = 0; i < equipmentList.size(); i++) {
-            Equipment existingEquipment = equipmentList.get(i);
-            if (existingEquipment.getId() == id) {
-                equipmentList.set(i, updatedEquipment);
-                return updatedEquipment;
-            }
+    public Equipment updateEquipment(int id, Equipment equipment) {
+        if (equipmentRepository.existsById(id)) {
+            equipment.setEquipmentId(id); // Asigură-te că id-ul echipamentului este setat
+            return equipmentRepository.save(equipment); // Actualizează echipamentul
         }
         return null;
     }
 
     @Override
     public void deleteEquipment(int id) {
-        equipmentList.removeIf(equipment -> equipment.getId() == id);
+            equipmentRepository.deleteById(id); // Șterge echipamentul după ID
+    }
+
+    @Override
+    public Equipment saveEquipment(Equipment equipment) {
+        return equipmentRepository.save(equipment);
     }
 
     @Override
     public List<Equipment> getEquipmentByStatus(String status) {
-        return equipmentList.stream()
-                .filter(equipment -> equipment.getStatus().equalsIgnoreCase(status))
-                .collect(Collectors.toList());
+        return equipmentRepository.findByStatus(status);
     }
 
     @Override
     public List<Equipment> getEquipmentByLocation(String location) {
-        return equipmentList.stream()
-                .filter(equipment -> equipment.getLocation().equalsIgnoreCase(location))
-                .collect(Collectors.toList());
+        return equipmentRepository.findByLocation(location);
     }
-
-    // Metode noi
 
     @Override
     public double calculateTotalValue() {
-        return equipmentList.stream()
+        return equipmentRepository.findAll().stream()
                 .mapToDouble(Equipment::getPrice)
                 .sum();
     }
 
     @Override
     public Equipment findMostExpensiveEquipment() {
-        return equipmentList.stream()
-                .max(Comparator.comparingDouble(Equipment::getPrice))
-                .orElse(null); // Returnăm `null` dacă lista e goală
+        return equipmentRepository.findAll().stream()
+                .max((e1, e2) -> Double.compare(e1.getPrice(), e2.getPrice()))
+                .orElse(null);
     }
 
     @Override
     public boolean isEquipmentAvailable(int id) {
         Equipment equipment = getEquipmentById(id);
-        return equipment != null && "Available".equalsIgnoreCase(equipment.getStatus());
+        return equipment != null && "Available".equalsIgnoreCase(equipment.getStatus()); // Verifică disponibilitatea echipamentului
     }
 
     @Override
     public List<Equipment> filterByPriceRange(double minPrice, double maxPrice) {
-        return null;
+        return equipmentRepository.findAll().stream()
+                .filter(equipment -> equipment.getPrice() >= minPrice && equipment.getPrice() <= maxPrice)
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public Equipment saveEquipment(Equipment equipment) {
-        return null;
-    }
 }

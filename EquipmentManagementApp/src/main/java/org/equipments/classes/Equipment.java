@@ -1,10 +1,7 @@
 package org.equipments.classes;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
+import lombok.*;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -17,7 +14,9 @@ import java.util.List;
 @Component
 @Entity
 public class Equipment {
-    @Id @GeneratedValue
+    @Getter
+    @Id
+    @GeneratedValue
     private int equipmentId;
     private String name;
     private String type;
@@ -49,9 +48,12 @@ public class Equipment {
 
 
     public Equipment(int equipmentId, String name, String type, String status, String location, double price) {
+        this.equipmentId = equipmentId;
+        this.name = name;
+        this.type = type;
+        this.status = status;
+        this.location = location;
+        this.price = price;
     }
 
-    public int getId(){
-        return equipmentId;
-    }
 }

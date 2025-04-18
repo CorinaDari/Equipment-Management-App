@@ -12,7 +12,7 @@ public class EquipmentFactoryUnitTest {
         Equipment equipment = factory.createEquipment(1, "Excavator", "Heavy Machinery", "Available", "Site A", 10000.0);
 
         assertNotNull(equipment, "Equipment nu a fost creat!");
-        assertEquals(1, equipment.getId());
+        assertEquals(1, equipment.getEquipmentId());
         assertEquals("Excavator", equipment.getName());
         assertEquals("Heavy Machinery", equipment.getType());
         assertEquals("Available", equipment.getStatus());
