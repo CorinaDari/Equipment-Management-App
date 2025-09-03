@@ -32,10 +32,11 @@ public class RepairRequest {
 
     @ElementCollection
     @CollectionTable(
-            name = "repair_activities", // Numele tabelei intermediare
-            joinColumns = @JoinColumn(name = "repair_request_id") // Cheia străină către tabela RepairRequest
+            name = "repair_activities", 
+            joinColumns = @JoinColumn(name = "repair_request_id") 
     )
-    @Column(name = "activity") // Numele coloanei pentru elementele colecției
+    @Column(name = "activity") 
     private List<String> repairActivities;
 
 }
+
