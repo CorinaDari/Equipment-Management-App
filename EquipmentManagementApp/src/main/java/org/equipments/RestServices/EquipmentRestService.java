@@ -58,8 +58,6 @@ public class EquipmentRestService {
         return ResponseEntity.noContent().build();
     }
 
-    // Alte metode vor fi refactorizate similar...
-
     private EquipmentDTO convertToDTO(Equipment equipment) {
         return new EquipmentDTO(
                 equipment.getEquipmentId(),
@@ -83,3 +81,4 @@ public class EquipmentRestService {
         );
     }
 }
+
