@@ -25,27 +25,27 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     public Equipment getEquipmentById(int id) {
-        return equipmentRepository.findById(id).orElse(null); // Găsește echipamentul după id
+        return equipmentRepository.findById(id).orElse(null); 
 
     }
 
     @Override
     public Equipment addEquipment(Equipment equipment) {
-        return equipmentRepository.save(equipment); // Salvează echipamentul în baza de date
+        return equipmentRepository.save(equipment); 
     }
 
     @Override
     public Equipment updateEquipment(int id, Equipment equipment) {
         if (equipmentRepository.existsById(id)) {
-            equipment.setEquipmentId(id); // Asigură-te că id-ul echipamentului este setat
-            return equipmentRepository.save(equipment); // Actualizează echipamentul
+            equipment.setEquipmentId(id); 
+            return equipmentRepository.save(equipment);
         }
         return null;
     }
 
     @Override
     public void deleteEquipment(int id) {
-            equipmentRepository.deleteById(id); // Șterge echipamentul după ID
+            equipmentRepository.deleteById(id); 
     }
 
     @Override
@@ -80,7 +80,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public boolean isEquipmentAvailable(int id) {
         Equipment equipment = getEquipmentById(id);
-        return equipment != null && "Available".equalsIgnoreCase(equipment.getStatus()); // Verifică disponibilitatea echipamentului
+        return equipment != null && "Available".equalsIgnoreCase(equipment.getStatus());
     }
 
     @Override
@@ -91,3 +91,4 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
 }
+
