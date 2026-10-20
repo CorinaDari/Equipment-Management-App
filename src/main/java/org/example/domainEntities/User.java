@@ -12,7 +12,7 @@ import lombok.Setter;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "users")
+    @Column(name = "user_id")
     private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -20,17 +20,20 @@ public class User {
     private Department department;
 
     @Column(name = "full_name", nullable = false)
-    private String fullName;
+    private String name;
 
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
-    public enum UserRole { ADMIN, MECHANIC, OPERATOR }
+
+    @Column(nullable = false)
+    private boolean active = true;
+    public enum UserRole { ADMIN, MANAGER, MECHANIC, OPERATOR }
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false)
     private UserRole role;
 
 }

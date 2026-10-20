@@ -30,17 +30,17 @@ public class RepairRequest {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
     public enum RepairPriority { LOW, MEDIUM, HIGH, CRITICAL }
-    public enum RepairStatus { OPEN, IN_PROGRESS, RESOLVED, CLOSED }
+    public enum RepairStatus { PENDING, APPROVED, REJECTED, IN_PROGRESS, RESOLVED, CLOSED }
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false)
     private RepairPriority priority = RepairPriority.MEDIUM;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private RepairStatus status = RepairStatus.OPEN;
+    @Column(nullable = false)
+    private RepairStatus status = RepairStatus.PENDING;
 
     @CreationTimestamp
     @Column(name = "reported_at", nullable = false, updatable = false)

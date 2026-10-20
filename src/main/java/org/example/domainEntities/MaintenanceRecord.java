@@ -22,7 +22,7 @@ public class MaintenanceRecord {
     @JoinColumn(name = "technician_id", nullable = false)
     private User technician;
 
-    public enum MaintenanceType { ROUTINE, PREVENTIVE, INSPECTION }
+    public enum MaintenanceType { ROUTINE, PREVENTIVE, INSPECTION, REPAIR }
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
