@@ -15,7 +15,6 @@ public interface EquipmentMapper {
 
     EquipmentResp toResp(Equipment equipment);
 
-
     @Mapping(source = "categoryName", target = "equipmentCategory.name")
     @Mapping(source = "location", target = "location.name")
     @Mapping(source= "id", target= "equipmentId")

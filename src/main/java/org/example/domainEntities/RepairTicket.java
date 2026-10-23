@@ -9,7 +9,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "repair_request")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class RepairRequest {
+public class RepairTicket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "repair_request_id")
@@ -30,7 +30,7 @@ public class RepairRequest {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
     public enum RepairPriority { LOW, MEDIUM, HIGH, CRITICAL }
-    public enum RepairStatus { PENDING, APPROVED, REJECTED, IN_PROGRESS, RESOLVED, CLOSED }
+    public enum RepairStatus { OPEN, IN_PROGRESS, RESOLVED, CLOSED }
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
@@ -40,7 +40,7 @@ public class RepairRequest {
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RepairStatus status = RepairStatus.PENDING;
+    private RepairStatus status = RepairStatus.OPEN;
 
     @CreationTimestamp
     @Column(name = "reported_at", nullable = false, updatable = false)

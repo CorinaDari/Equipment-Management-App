@@ -7,9 +7,7 @@ The project focuses on equipment management, maintenance workflows, database per
 
 ## Features
 
-- **Equipment management** – Store and manage farm equipment and machinery.
-- **Worker assignments** – Support assigning machinery to farm workers.
-- **Repair requests** – Model the repair request workflow, including mechanic assignment and status updates.
+- **Repair requests** – Create repair tickets with business rule validation, including active equipment assignment checks and prevention of duplicate active repair requests for the same equipment. The mechanic assignment and repair resolution workflow is still under development.
 - **Authentication** – Spring Security authentication with BCrypt password hashing.
 - **Database migrations** – Versioned schema migrations and SQL seed data managed with Flyway.
 - **Continuous integration** – Automated Maven builds using GitHub Actions.
@@ -144,14 +142,44 @@ Automated tests are currently skipped in the CI build and may be added in a futu
 
 ## Roadmap
 
-- [ ] Complete REST API endpoints for equipment and worker management.
-- [ ] Implement equipment assignment business rules.
-- [ ] Complete the repair request lifecycle and status transitions.
-- [ ] Implement and verify role-based authorization.
+### 1. Core Infrastructure
+- [x] Set up the Spring Boot project and layered architecture.
+- [x] Define domain entities and relationships.
+- [x] Configure database migrations and seed data with Flyway.
+- [ ] Implement DTOs and entity-to-DTO mapping.
+- [x] Configure Spring Security authentication and BCrypt password hashing.
+- [ ] Complete and verify role-based authorization.
+
+### 2. Equipment and Worker Management
+- [ ] Implement equipment management endpoints and business rules.
+- [ ] Implement worker management endpoints.
+- [ ] Implement equipment assignment and reassignment workflows.
+- [ ] Validate assignment rules and prevent conflicting active assignments.
+
+### 3. Repair Request Management
+- [x] Implement repair ticket creation for authenticated workers.
+- [x] Validate that the equipment is actively assigned to the requesting worker.
+- [x] Prevent new requests when an active repair ticket already exists for the equipment.
+- [ ] Implement repair ticket retrieval, filtering, and detailed views.
+- [ ] Allow mechanics to claim and manage repair tickets.
+- [ ] Implement repair status transitions and resolution details.
+- [ ] Track repair costs, resolution timestamps, and responsible technicians.
+
+### 4. Maintenance Management
+- [ ] Implement maintenance record endpoints.
+- [ ] Track maintenance history for each equipment item.
+- [ ] Add maintenance scheduling and service history views.
+
+### 5. Quality and Reliability
 - [ ] Add request validation and consistent API error handling.
+- [ ] Handle concurrent repair requests and enforce database-level integrity constraints.
 - [ ] Add unit and integration tests.
-- [ ] Extend CI to execute automated tests.
+- [ ] Extend CI to run automated tests.
+
+### 6. Developer Experience and Deployment
 - [ ] Add Docker support for local development.
+- [ ] Document API endpoints, business rules, and example requests.
+- [ ] Prepare deployment configuration and production-ready settings.
 
 ## Security Notes
 
