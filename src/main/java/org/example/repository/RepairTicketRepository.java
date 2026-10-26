@@ -16,5 +16,5 @@ public interface RepairTicketRepository extends JpaRepository<RepairTicket, Long
             Collection<RepairTicket.RepairStatus> statuses
     );
 
-
+    List<RepairTicket> findByStatusIn(List<RepairTicket.RepairStatus> statuses);
 }

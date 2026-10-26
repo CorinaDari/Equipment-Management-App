@@ -99,6 +99,23 @@ http://localhost:8080
 
 Flyway applies pending database migrations according to the application configuration. Hibernate validates the entity mappings against the database schema without automatically creating or updating tables.
 
+## API Documentation (Swagger UI)
+
+The application provides interactive API documentation through Swagger UI.
+
+After starting the application, open:
+
+[http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+
+Swagger UI allows you to:
+- Browse available REST API endpoints.
+- Inspect request parameters, request bodies, and response schemas.
+- Execute API requests directly from the browser.
+- Verify successful responses and error handling.
+- Test endpoints that interact with the database.
+
+Some endpoints require authentication, depending on the application's security configuration.
+
 ### 4. Build the Project
 
 On Linux or macOS:
@@ -114,6 +131,19 @@ mvnw.cmd -B package
 ```
 
 The packaged application is generated in the `target/` directory.
+
+### 5. Run the Tests
+
+On Linux or macOS:
+
+```bash
+./mvnw -B test
+```
+
+On Windows:
+```bat
+mvnw.cmd -B test
+```
 
 ## Architecture
 
@@ -136,9 +166,7 @@ The current pipeline:
 1. Checks out the repository.
 2. Sets up Java 17 using Amazon Corretto.
 3. Caches Maven dependencies.
-4. Packages the application using the Maven Wrapper.
-
-Automated tests are currently skipped in the CI build and may be added in a future iteration.
+4. Builds the project and runs automated tests using Maven.
 
 ## Roadmap
 
@@ -146,7 +174,10 @@ Automated tests are currently skipped in the CI build and may be added in a futu
 - [x] Set up the Spring Boot project and layered architecture.
 - [x] Define domain entities and relationships.
 - [x] Configure database migrations and seed data with Flyway.
-- [ ] Implement DTOs and entity-to-DTO mapping.
+- [x] Create DTOs for implemented API operations.
+- [x] Configure mappers for the implemented DTOs.
+- [ ] Complete DTO coverage for the remaining API operations.
+- [ ] Complete entity-to-DTO mapping across the application.
 - [x] Configure Spring Security authentication and BCrypt password hashing.
 - [ ] Complete and verify role-based authorization.
 
@@ -173,10 +204,12 @@ Automated tests are currently skipped in the CI build and may be added in a futu
 ### 5. Quality and Reliability
 - [ ] Add request validation and consistent API error handling.
 - [ ] Handle concurrent repair requests and enforce database-level integrity constraints.
-- [ ] Add unit and integration tests.
-- [ ] Extend CI to run automated tests.
+- [x] Add unit tests for service-layer business logic.
+- [ ] Add integration tests for API endpoints and database interactions.
+- [x] Extend CI to run automated tests.
 
 ### 6. Developer Experience and Deployment
+- [x] Add interactive API documentation using Swagger UI.
 - [ ] Add Docker support for local development.
 - [ ] Document API endpoints, business rules, and example requests.
 - [ ] Prepare deployment configuration and production-ready settings.
@@ -186,6 +219,16 @@ Automated tests are currently skipped in the CI build and may be added in a futu
 - Passwords are hashed using BCrypt.
 - Seed accounts and shared demo passwords are intended exclusively for local development and testing.
 - Production credentials and other sensitive configuration must not be committed to version control.
+
+### Demo Accounts
+
+The application includes preconfigured demo accounts for testing authentication and role-based access.
+
+- **Username:** The email address associated with each account.
+- **Password:** `demo`
+- **Accounts and roles:** See the database seed data for the available usernames and roles.
+
+All demo accounts share the same password for convenience. These credentials are intended exclusively for local development and demonstration purposes and must never be used in production.
 
 ## Author
 

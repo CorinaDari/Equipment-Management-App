@@ -1,8 +1,8 @@
 package org.example.controllers;
 
-import org.example.dto.GetAllRepairTickets;
-import org.example.dto.WorkerRepairTicketRequest;
-import org.example.dto.WorkerRepairTicketResponse;
+import jakarta.validation.Valid;
+import org.example.domainEntities.RepairTicket;
+import org.example.dto.*;
 import org.example.service.RepairTicketService;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +23,22 @@ public class RepairTicketController {
     }
 
     @GetMapping("/repairTicket")
-    public List<GetAllRepairTickets> getAllRepairTickets(){
-        return service.getRepairTickets();
+    public List<GetAllRepairTickets> getAllRepairTickets(
+            @RequestParam(required = false)
+            List<RepairTicket.RepairStatus> status
+    ){
+        return service.getRepairTickets(status);
+    }
+
+    @PatchMapping("/repairTicket/{id}")
+    public MechanicRepairTicketResp mechanicTakesTicket(
+            @PathVariable Long id
+    ){
+        return service.mechanicTakesTicket(id);
+    }
+
+    @PatchMapping("/repairTicket/finalize")
+    public CompleteRepairTicketResp mechanicFinalizesTicket(@Valid @RequestBody CompleteRepairTicketReq request){
+        return service.mechanicFinalizesTicket(request);
     }
 }
