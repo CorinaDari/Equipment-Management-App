@@ -105,7 +105,7 @@ public class RepairTicketService {
         ticketRepo.save(repairTicket);
 
         response.setRepairTicketId(repairTicket.getRepairRequestId());
-        response.setStatusCode("201");
+        response.setStatusCode("200");
         response.setCreatedAt(repairTicket.getReportedAt());
         response.setTicketState(repairTicket.getStatus().name());
         response.setMessage("Repair ticket created successfully");
