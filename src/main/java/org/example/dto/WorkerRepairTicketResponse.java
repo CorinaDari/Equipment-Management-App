@@ -1,11 +1,12 @@
 package org.example.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
 
-@Setter @Getter
+@Setter @Getter @Builder
 public class WorkerRepairTicketResponse {
     private String statusCode;
     private String message;

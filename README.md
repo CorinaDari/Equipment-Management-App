@@ -10,7 +10,7 @@ The project focuses on equipment management, maintenance workflows, database per
 ## Features
 
 - **Repair requests** – Workers create repair tickets with business rule validation: the equipment must be actively assigned to the requesting worker, and duplicate active tickets for the same equipment are rejected.
-- **Repair workflow** – Mechanics claim open tickets and finalize them with a cost and resolution timestamp. Tickets can be filtered by status.
+- **Repair workflow** – Mechanics claim open tickets and finalize them with a cost and a resolution timestamp. Tickets can be filtered by status. Optimistic locking prevents multiple mechanics from claiming the same ticket concurrently.
 - **Equipment assignment** – Assign equipment to workers for a given period.
 - **Authentication** – Spring Security with HTTP Basic authentication, BCrypt password hashing, and user roles (`ADMIN`, `MANAGER`, `MECHANIC`, `OPERATOR`).
 - **Database migrations** – Versioned schema migrations and SQL seed data managed with Flyway.
@@ -22,22 +22,22 @@ The project focuses on equipment management, maintenance workflows, database per
 
 ## Tech Stack
 
-| Technology | Purpose |
-|---|---|
-| Java 17 | Programming language |
-| Spring Boot | Backend framework |
-| Spring Security | Authentication and security |
-| Spring Data JPA | Database access |
-| Hibernate | JPA implementation |
-| Flyway | Database migrations |
-| BCrypt | Password hashing |
-| Maven | Build and dependency management |
-| SQL | Schema migrations and seed data |
-| GitHub Actions | Continuous integration |
-| PostgreSQL | Relational database |
-| JUnit, Mockito | Unit testing |
-| Springdoc OpenAPI / Swagger UI | API documentation |
-| Docker, Docker Compose | Containerization and local environment |
+| Technology                     | Purpose                                |
+|--------------------------------|----------------------------------------|
+| Java 17                        | Programming language                   |
+| Spring Boot                    | Backend framework                      |
+| Spring Security                | Authentication and security            |
+| Spring Data JPA                | Database access                        |
+| Hibernate                      | JPA implementation                     |
+| Flyway                         | Database migrations                    |
+| BCrypt                         | Password hashing                       |
+| Maven                          | Build and dependency management        |
+| SQL                            | Schema migrations and seed data        |
+| GitHub Actions                 | Continuous integration                 |
+| PostgreSQL                     | Relational database                    |
+| JUnit, Mockito, Testcontainers | Unit and integration testing           |
+| Springdoc OpenAPI / Swagger UI | API documentation                      |
+| Docker, Docker Compose         | Containerization and local environment |
 
 ## Run with Docker
 
@@ -238,6 +238,7 @@ The current pipeline has two jobs:
 - [ ] Handle concurrent repair requests and enforce database-level integrity constraints.
 - [x] Add unit tests for service-layer business logic.
 - [ ] Add integration tests for API endpoints and database interactions.
+- [x] Add integration tests for repair ticket service using Testcontainers and PostgreSQL
 - [x] Extend CI to run automated tests.
 - [x] Build the Docker image and run a smoke test in CI.
 

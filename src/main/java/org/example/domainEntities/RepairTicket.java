@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
-@Table(name = "repair_request")
+@Table(name = "repair_ticket")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class RepairTicket {
     @Id
@@ -51,4 +51,8 @@ public class RepairTicket {
 
     @Column(precision = 10, scale = 2)
     private BigDecimal cost;
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 }

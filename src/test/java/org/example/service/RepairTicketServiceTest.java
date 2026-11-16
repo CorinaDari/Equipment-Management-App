@@ -21,6 +21,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -234,8 +235,13 @@ class RepairTicketServiceTest {
                         eq(equipmentId), anyList()))
                 .thenReturn(false);
 
-        when(ticketRepo.save(any(RepairTicket.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(ticketRepo.saveAndFlush(any(RepairTicket.class)))
+                .thenAnswer(invocation -> {
+                    RepairTicket ticket = invocation.getArgument(0);
+                    ticket.setRepairRequestId(1L);
+                    ticket.setReportedAt(Instant.now());
+                    return ticket;
+                });
 
         // Act
         WorkerRepairTicketResponse response =
@@ -247,8 +253,9 @@ class RepairTicketServiceTest {
                 "Repair ticket created successfully",
                 response.getMessage());
         assertEquals("OPEN", response.getTicketState());
+        assertEquals(1L, response.getRepairTicketId());
 
-        verify(ticketRepo).save(any(RepairTicket.class));
+        verify(ticketRepo).saveAndFlush(any(RepairTicket.class));
     }
 
     @Test
@@ -350,7 +357,6 @@ class RepairTicketServiceTest {
 
         verify(ticketRepo).findById(ticketId);
         verify(userRepo).findByEmail("mechanic@example.com");
-        verify(ticketRepo).save(ticket);
     }
 
     @Test
@@ -581,6 +587,50 @@ class RepairTicketServiceTest {
 
         // assert: repository
         verify(ticketRepo).findById(ticketId);
-        verify(ticketRepo).save(ticket);
+    }
+
+    @Test
+    void shouldHandleDatabaseConflictWhenCreatingTicket() {
+
+        authenticateAs("worker@example.com");
+
+        Long equipmentId = 10L;
+
+        WorkerRepairTicketRequest request =
+                mock(WorkerRepairTicketRequest.class);
+
+        User user = mock(User.class);
+        Equipment equipment = mock(Equipment.class);
+        Assignment assignment = mock(Assignment.class);
+
+        when(request.getId()).thenReturn(equipmentId);
+
+        when(userRepo.findByEmail("worker@example.com"))
+                .thenReturn(user);
+
+        when(user.getUserId()).thenReturn(1L);
+
+        when(equipRepo.findById(equipmentId))
+                .thenReturn(Optional.of(equipment));
+
+        when(equipment.getEquipmentId())
+                .thenReturn(equipmentId);
+
+        when(assignRepo.findActiveAsignment(
+                eq(1L), eq(equipmentId), any(Instant.class)))
+                .thenReturn(Optional.of(assignment));
+
+        when(ticketRepo.existsByEquipment_EquipmentIdAndStatusIn(
+                eq(equipmentId), anyList()))
+                .thenReturn(false);
+
+        when(ticketRepo.saveAndFlush(any(RepairTicket.class)))
+                .thenThrow(new DataIntegrityViolationException(
+                        "Unique constraint violation"));
+
+        assertThrows(
+                DataIntegrityViolationException.class,
+                () -> service.createRepairTicket(request)
+        );
     }
 }

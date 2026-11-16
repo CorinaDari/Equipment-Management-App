@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.math.BigDecimal;
@@ -43,8 +44,9 @@ public class RepairTicketService {
     }
 
     @PreAuthorize("hasAnyRole('OPERATOR')")
+    @Transactional
     public WorkerRepairTicketResponse createRepairTicket(WorkerRepairTicketRequest request){
-        WorkerRepairTicketResponse response = new WorkerRepairTicketResponse();
+        WorkerRepairTicketResponse response;// = new WorkerRepairTicketResponse();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -58,9 +60,10 @@ public class RepairTicketService {
             userId = user.getUserId();
         }
         else{
-            response.setMessage("404");
-            response.setMessage("User not found");
-            return response;
+            return response = WorkerRepairTicketResponse.builder()
+                    .statusCode("404")
+                    .message("User not found")
+                    .build();
         }
 
         Optional<Equipment> optionalEquipment = equipRepo.findById(request.getId());
@@ -72,29 +75,32 @@ public class RepairTicketService {
             equipmentId = equipment.getEquipmentId();
         }
         else {
-            response.setMessage("404");
-            response.setMessage("Equipment not found");
-            return response;
+            return response = WorkerRepairTicketResponse.builder()
+                    .statusCode("404")
+                    .message("Equipment not found")
+                    .build();
         }
 
         Instant assignmentTime = Instant.now();
         Optional<Assignment> optionalAssignment = assignRepo.findActiveAsignment(userId, equipmentId, assignmentTime);
 
         if(optionalAssignment.isEmpty()){
-            response.setMessage("403");
-            response.setMessage("Equipment not actively assigned to worker");
-            return response;
+            return response = WorkerRepairTicketResponse.builder()
+                    .statusCode("403")
+                    .message("Equipment not actively assigned to worker")
+                    .build();
         }
 
         boolean ticketAlreadyExists = ticketRepo.existsByEquipment_EquipmentIdAndStatusIn(request.getId(), List.of(OPEN, IN_PROGRESS));
 
         if(ticketAlreadyExists){
-            response.setMessage("A ticket already exists for this equipment");
-            response.setStatusCode("409");
-            return response;
+            return response = WorkerRepairTicketResponse.builder()
+                    .statusCode("409")
+                    .message("A ticket already exists for this equipment")
+                    .build();
         }
 
-        RepairTicket repairTicket =  RepairTicket.builder()
+        RepairTicket repairTicket = RepairTicket.builder()
                 .equipment(equipment)
                 .description(request.getDescription())
                 .reportedBy(user)
@@ -102,13 +108,16 @@ public class RepairTicketService {
                 .status(OPEN)
                 .build();
 
-        ticketRepo.save(repairTicket);
 
-        response.setRepairTicketId(repairTicket.getRepairRequestId());
-        response.setStatusCode("200");
-        response.setCreatedAt(repairTicket.getReportedAt());
-        response.setTicketState(repairTicket.getStatus().name());
-        response.setMessage("Repair ticket created successfully");
+        ticketRepo.saveAndFlush(repairTicket);
+
+        response = WorkerRepairTicketResponse.builder()
+                .repairTicketId(repairTicket.getRepairRequestId())
+                .statusCode("200")
+                .createdAt(repairTicket.getReportedAt())
+                .ticketState(repairTicket.getStatus().name())
+                .message("Repair ticket created successfully")
+                .build();
 
         return response;
     }
@@ -144,6 +153,8 @@ public class RepairTicketService {
                 .toList();
     }
 
+    @PreAuthorize("hasAnyRole('MECHANIC')")
+    @Transactional
     public MechanicRepairTicketResp mechanicTakesTicket(Long id){
 
         MechanicRepairTicketResp response;
@@ -176,8 +187,6 @@ public class RepairTicketService {
         repairTicket.setTechnician(user);
         repairTicket.setStatus(IN_PROGRESS);
 
-        ticketRepo.save(repairTicket);
-
         response = MechanicRepairTicketResp.builder()
                 .statusCode("200")
                 .message("Ticket assigned successfully to mechanic")
@@ -193,6 +202,8 @@ public class RepairTicketService {
         return response;
     }
 
+    @PreAuthorize("hasAnyRole('MECHANIC')")
+    @Transactional
     public CompleteRepairTicketResp mechanicFinalizesTicket(CompleteRepairTicketReq request){
 
         CompleteRepairTicketResp response;
@@ -210,7 +221,13 @@ public class RepairTicketService {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String technicianName = authentication.getName();
-        System.out.println(technicianName);
+
+//        if (repairTicket.getTechnician() == null) {
+//            return CompleteRepairTicketResp.builder()
+//                    .statusCode("409")
+//                    .message("Ticket has no assigned technician")
+//                    .build();
+//        }
 
         if (! technicianName.equals(repairTicket.getTechnician().getEmail())){
             response = CompleteRepairTicketResp.builder()
@@ -230,15 +247,24 @@ public class RepairTicketService {
             return response;
         }
 
-        RepairTicket.RepairStatus ticketStatus = request.getStatus();
+        RepairTicket.RepairStatus ticketStatus;
+
+        if(request.getStatus() == RepairTicket.RepairStatus.CLOSED || request.getStatus() == RepairTicket.RepairStatus.RESOLVED) {
+            ticketStatus = request.getStatus();
+        }
+        else{
+            return response = CompleteRepairTicketResp.builder()
+                    .statusCode("400")
+                    .message("Allowed statuses are CLOSED and RESOLVED")
+                    .build();
+        }
+
         BigDecimal cost = request.getCost();
         Instant resolvedAt = Instant.now();
 
         repairTicket.setStatus(ticketStatus);
         repairTicket.setCost(cost);
         repairTicket.setResolvedAt(resolvedAt);
-
-        ticketRepo.save(repairTicket);
 
         response = CompleteRepairTicketResp.builder()
                 .statusCode("200")
