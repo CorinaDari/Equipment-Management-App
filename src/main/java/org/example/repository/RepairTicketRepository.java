@@ -19,4 +19,6 @@ public interface RepairTicketRepository extends JpaRepository<RepairTicket, Long
     List<RepairTicket> findByStatusIn(List<RepairTicket.RepairStatus> statuses);
 
     long countByEquipment_EquipmentId(Long equipmentId);
+
+    boolean existsByEquipmentEquipmentIdAndStatusIn(Long id, List<RepairTicket.RepairStatus> open);
 }

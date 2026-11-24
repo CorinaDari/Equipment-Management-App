@@ -26,4 +26,6 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
             @Param("equipmentId") Long eqipmentId,
             @Param("now") Instant now
     );
+
+    boolean existsByEquipmentEquipmentIdAndEndDateIsNull(Long id);
 }

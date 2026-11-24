@@ -1,51 +1,73 @@
 package org.example.controllers;
 
-import org.example.domainEntities.Equipment;
-import org.example.mapper.EquipmentMapper;
+import jakarta.validation.Valid;
+import org.example.dto.CreateEquipmentReq;
+import org.example.dto.CreateEquipmentResp;
 import org.example.dto.EquipmentResp;
-import org.example.repository.EquipmentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.dto.UpdateEquipmentReq;
+import org.example.service.EquipmentService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/equipments")
 public class EquipmentController {
-    @Autowired
-    EquipmentRepository equipmentRepository;
+    private EquipmentService service;
 
-    @Autowired
-    EquipmentMapper mapper;
+    public EquipmentController(EquipmentService service){
+        this.service = service;
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<EquipmentResp> getEquipmentById(@PathVariable Long id){
-        var equipment = equipmentRepository.findById(id).orElse(null);
 
-        if(equipment == null){
-            return ResponseEntity.notFound().build();
-        }
-        EquipmentResp resp = mapper.toResp(equipment);
+        EquipmentResp resp = service.getEquipmentById(id);
 
         return ResponseEntity.ok(resp);
     }
 
-    @GetMapping("/")
-    public List<EquipmentResp> getAllEquipmentById(){
+    @GetMapping
+    public ResponseEntity<List<EquipmentResp>> getAllEquipment() {
 
-        List<EquipmentResp> equipDtoList = new ArrayList<>();
-        List<Equipment> equipList = equipmentRepository.findAll();
+        List<EquipmentResp> response = service.getAllEquipment();
 
-        for(Equipment equipment: equipList){
-            equipDtoList.add(mapper.toResp(equipment));
-        }
+        return ResponseEntity.ok(response);
+    }
 
-        return equipDtoList;
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<CreateEquipmentResp> createEquipment(
+            @Valid @RequestBody CreateEquipmentReq request){
 
+        CreateEquipmentResp response = service.createEquipment(request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
 
     }
 
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<EquipmentResp> updateEquipment(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateEquipmentReq request) {
 
+        EquipmentResp response = service.updateEquipment(id, request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/archive")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<Void> deleteEquipment(@PathVariable Long id) {
+
+        service.deleteEquipment(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

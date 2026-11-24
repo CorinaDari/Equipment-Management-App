@@ -17,7 +17,6 @@ import java.util.Optional;
 
 @Service
 public class AssignEquipmentService {
-
     private final AssignmentRepository assignRepo;
     private final UserRepository userRepo;
     private final EquipmentRepository equipRepo;
@@ -57,7 +56,7 @@ public class AssignEquipmentService {
                     .build();
         }
 
-        Optional<Equipment> optionalEquipment = equipRepo.findById(request.getEquipmentId());
+        Optional<Equipment> optionalEquipment = equipRepo.findByEquipmentIdAndDeletedAtIsNull(request.getEquipmentId());
         if(optionalEquipment.isEmpty()){
             return AssignEquipmentResp.builder()
                     .statusCode("404")

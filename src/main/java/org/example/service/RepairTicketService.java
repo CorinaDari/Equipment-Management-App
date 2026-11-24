@@ -66,7 +66,7 @@ public class RepairTicketService {
                     .build();
         }
 
-        Optional<Equipment> optionalEquipment = equipRepo.findById(request.getId());
+        Optional<Equipment> optionalEquipment = equipRepo.findByEquipmentIdAndDeletedAtIsNull(request.getId());
         Long equipmentId;
         Equipment equipment;
 
@@ -77,7 +77,7 @@ public class RepairTicketService {
         else {
             return response = WorkerRepairTicketResponse.builder()
                     .statusCode("404")
-                    .message("Equipment not found")
+                    .message("Equipment not found or archived")
                     .build();
         }
 
@@ -222,12 +222,12 @@ public class RepairTicketService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String technicianName = authentication.getName();
 
-//        if (repairTicket.getTechnician() == null) {
-//            return CompleteRepairTicketResp.builder()
-//                    .statusCode("409")
-//                    .message("Ticket has no assigned technician")
-//                    .build();
-//        }
+        if (repairTicket.getTechnician() == null) {
+            return CompleteRepairTicketResp.builder()
+                    .statusCode("409")
+                    .message("Ticket has no assigned technician")
+                    .build();
+        }
 
         if (! technicianName.equals(repairTicket.getTechnician().getEmail())){
             response = CompleteRepairTicketResp.builder()

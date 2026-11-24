@@ -1,0 +1,2 @@
+ALTER TABLE equipment
+ADD COLUMN deleted_at TIMESTAMP NULL;
